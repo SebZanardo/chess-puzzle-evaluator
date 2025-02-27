@@ -1,16 +1,16 @@
 # chess-puzzle-evaluator
 
-I would recommend setting up a [virtual environment](https://www.freecodecamp.org/news/how-to-setup-virtual-environments-in-python/) before running this project  
-
-## Before running the project
+## Script setup
+### I would recommend setting up a [virtual environment](https://www.freecodecamp.org/news/how-to-setup-virtual-environments-in-python/) before installing this project's requirements</sub>
+  
 Install the project requirements  
 ```
 pip install -r requirements.txt
 ```
-AND  
+### AND  
 Install stockfish on your machine: https://github.com/official-stockfish/Stockfish
 
-## How to run the project
+## Running the script
 ```
 python3 main.py <path_to_stockfish> <path_to_pgn_directory>
 ```
