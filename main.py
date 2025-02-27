@@ -55,19 +55,20 @@ def main() -> None:
 def valid_puzzle(stockfish: Stockfish, puzzle: chess.pgn.Game) -> bool:
     fen = puzzle.headers["FEN"]
 
-    mainline_moves = puzzle.mainline_moves()
+    # NOTE: Only checking main line moves atm
+    moves = puzzle.mainline_moves()
 
     print(f"{Fore.MAGENTA}Evaluating: {fen}{Style.RESET_ALL}")
 
-    # TODO: If no mainline moves then try to request from "Site" header
-    if not mainline_moves:
+    # TODO: If no moves then try to request from "Site" header
+    if not moves:
         print("NO MOVES IN PUZZLE?!")
         return False
 
-    print(mainline_moves)
+    print(moves)
 
     stockfish.set_fen_position(fen)
-    for i, move in enumerate(mainline_moves):
+    for i, move in enumerate(moves):
         puzzle_move = str(move)
 
         # Only check every second move, as it would be the players move
@@ -84,13 +85,13 @@ def valid_puzzle(stockfish: Stockfish, puzzle: chess.pgn.Game) -> bool:
             ):
 
                 print(f"Two best moves: {best_move} & {next_best_move}")
-                append_log(f"{fen} {best_move} & {next_best_move}")
+                append_log(f"{fen} {moves} {best_move} & {next_best_move}")
                 return False
 
             # If best move doesnt match pgn then error
             if puzzle_move != best_move:
                 print(f"Not best move: {puzzle_move} < {best_move}")
-                append_log(f"{fen} {puzzle_move} < {best_move}")
+                append_log(f"{fen} {moves} {puzzle_move} < {best_move}")
                 return False
 
         # Make the move on the stockfish board
