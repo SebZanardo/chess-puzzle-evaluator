@@ -5,27 +5,27 @@ from stockfish import Stockfish
 from colorama import Fore, Style
 
 
-OUTPUT_FILE = "invalid.txt"
+LOG_FILEPATH = "invalid.txt"
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="Puzzle Checker",
         description="Checks pgn files to ensure mainline plays best moves",
-        epilog=f"NOTE: The file {OUTPUT_FILE} is cleared at start of script"
+        epilog=f"NOTE: The file {LOG_FILEPATH} is cleared at start of script"
     )
     parser.add_argument('stockfish_path')
     parser.add_argument('pgn_directory')
     args = parser.parse_args()
 
     # Clear output file
-    open(OUTPUT_FILE, 'w').close()
+    open(LOG_FILEPATH, 'w').close()
 
     # Initialise stockfish engine
     stockfish = Stockfish(
         path=args.stockfish_path,
         depth=20,
-        parameters={"Threads": 8, "Minimum Thinking Time": 10}
+        parameters={"Threads": 16, "Minimum Thinking Time": 8}
     )
 
     for file in os.listdir(args.pgn_directory):
@@ -68,20 +68,34 @@ def valid_puzzle(stockfish: Stockfish, puzzle: chess.pgn.Game) -> bool:
         # Only check every second move, as it would be the players move
         # Doesn't matter if opponent has multiple lines
         if i % 2 == 0:
-            best_move = str(stockfish.get_best_move())
-            if puzzle_move != best_move:
-                print(f"{puzzle_move}-->{best_move}")
-                append_output(f"{fen} {puzzle_move}-->{best_move}")
+            top_moves = stockfish.get_top_moves(2)
+            best_move = top_moves[0]['Move']
+            next_best_move = top_moves[1]['Move']
+
+            # Check for multiple best moves, and if so, mark as invalid
+            if (
+                top_moves[0]['Centipawn'] == top_moves[1]['Centipawn'] and
+                top_moves[0]['Mate'] == top_moves[1]['Mate']
+            ):
+
+                print(f"Two best moves: {best_move} & {next_best_move}")
+                append_log(f"{fen} {best_move} & {next_best_move}")
                 return False
 
-            # TODO: Check for multiple best moves, and if so, mark as invalid
+            # If best move doesnt match pgn then error
+            if puzzle_move != best_move:
+                print(f"Not best move: {puzzle_move} < {best_move}")
+                append_log(f"{fen} {puzzle_move} < {best_move}")
+                return False
 
+        # Make the move on the stockfish board
         stockfish.make_moves_from_current_position([puzzle_move])
+
     return True
 
 
-def append_output(line: str) -> None:
-    with open(OUTPUT_FILE, 'a') as f:
+def append_log(line: str) -> None:
+    with open(LOG_FILEPATH, 'a') as f:
         f.write(f"{line}\n")
 
 
