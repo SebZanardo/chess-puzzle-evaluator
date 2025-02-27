@@ -55,10 +55,15 @@ def main() -> None:
 def valid_puzzle(stockfish: Stockfish, puzzle: chess.pgn.Game) -> bool:
     fen = puzzle.headers["FEN"]
 
-    # TODO: If no mainline moves then try to request from "Site" header
     mainline_moves = puzzle.mainline_moves()
 
     print(f"{Fore.MAGENTA}Evaluating: {fen}{Style.RESET_ALL}")
+
+    # TODO: If no mainline moves then try to request from "Site" header
+    if not mainline_moves:
+        print("NO MOVES IN PUZZLE?!")
+        return False
+
     print(mainline_moves)
 
     stockfish.set_fen_position(fen)
