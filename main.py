@@ -82,7 +82,7 @@ def valid_puzzle(stockfish: Stockfish, puzzle: chess.pgn.Game) -> bool:
 
 def append_output(line: str) -> None:
     with open(OUTPUT_FILE, 'a') as f:
-        f.write(line)
+        f.write(f"{line}\n")
 
 
 if __name__ == "__main__":
